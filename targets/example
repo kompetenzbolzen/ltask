@@ -1,0 +1,13 @@
+# vi: ft=sh
+# Add with HOSTS+=(...)
+# Format: "host[:port]"
+# port should be ommited if default (22) since hosts array is
+# checked for duplicates
+
+# Including other targets is done with 'source'.
+# env: $TARGET_DIR
+
+HOSTS+=(
+"localhost"
+"test"
+)

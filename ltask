@@ -1,0 +1,115 @@
+#!/bin/bash
+
+#    ltask: lightweight remote task execution
+#    Copyright (C) 2020 Jonas Gunz <himself@jonasgunz.de>
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+ARGC=$#
+ARGV=($@)
+
+DIRNAME=$(dirname $0)
+[ -d $DIRNAME ] && cd $DIRNAME
+unset DIRNAME
+
+[ ! -f ./$(basename $0) ] && echo "Could not find working directory" && exit 1
+
+readonly BASEDIR=$(pwd)
+
+readonly TASK_DIR=$BASEDIR/tasks
+readonly ASSET_DIR=$BASEDIR/assets
+readonly TARGET_DIR=$BASEDIR/targets
+readonly TOOL_DIR=$BASEDIR/tools
+
+TASK=
+TARGET=
+
+HOSTS=()
+
+#block run when sourcing task
+HOSTMODE="yes"
+
+function parse_args() {
+	for (( i=0; i < $ARGC;i++ )); do
+		local ARGREGEX="^-.*"
+		if [[ ! ${ARGV[$i]} =~ $ARGREGEX ]]; then
+			[ -z $TASK ] && TASK=${ARGV[$i]} && continue
+			[ -z $TARGET ] && TARGET=${ARGV[$i]} && continue
+			
+			print_help 1
+		fi
+
+		case ${ARGV[$i]} in
+			-H)
+				i=$((i+1))
+				HOSTS+=(${ARGV[$i]});;
+			-h)
+				print_help 0;;
+			*)
+				echo Invalid Argument ${ARGV[$i]}
+				echo $0 -h for help
+				exit 1;;
+		esac
+
+	done
+	#[ -z $TASK ] && echo No task specified && exit 1
+	#[ -z $TARGET ] && echo No target specified && exit 1
+}
+
+function print_help() {
+	echo << EOF
+Usage:
+$0 [OPTIONS] TASK TARGET
+EOF
+	exit $1
+}
+
+function interactive() {
+	echo Interactive mode TODO
+	exit 1
+}
+
+parse_args
+
+if [ -z $TASK ] || [ -z $TARGET ]; then
+	interactive
+fi
+
+unset TASK_ISSET
+
+[ -f $TASK_DIR/$TASK ] && source $TASK_DIR/$TASK
+[ -f $TARGET_DIR/$TARGET ] && source $TARGET_DIR/$TARGET
+
+if [ -z $TASK_ISSET ]; then
+	echo Task did not load correctly
+	exit 1
+fi
+
+HOSTS_UNIQUE=($(tr ' ' '\n' <<< "${HOSTS[@]}" | sort -u))
+
+for hoststring in "${HOSTS_UNIQUE[@]}"; do
+	rexecargs=""
+	IFS=$':' read hostname port <<< "$hoststring"
+
+	[ ! -z $port ] && rexecargs+="-p $port "
+	[ ! -z $SSH_IDENTITY_FILE ] && rexecargs+="-i $SSH_IDENTITY_FILE "
+	[ ! -z $SSH_USER ] && rexecargs="$SSH_USER@"
+	rexecargs+="$hostname "
+	rexecargs+="$TASK_DIR/$TASK"
+
+	echo
+	echo "<=== $hostname ===>"
+	echo
+	$TOOL_DIR/rexec.sh $rexecargs
+done
