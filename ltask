@@ -68,9 +68,14 @@ function parse_args() {
 }
 
 function print_help() {
-	echo << EOF
+	cat << EOF
 Usage:
 $0 [OPTIONS] TASK TARGET
+Options:
+	-H HOST		Add HOST to target hosts. can be used
+			to target single hosts without defining
+			a custom target
+	-h		print this help text
 EOF
 	exit $1
 }

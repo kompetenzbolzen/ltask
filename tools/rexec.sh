@@ -65,7 +65,7 @@ function parse_args() {
 }
 
 function print_help() {
-	echo << EOF
+	cat << EOF
 Execute a script on a remote host via SSH
 
 Usage:
