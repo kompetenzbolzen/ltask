@@ -87,7 +87,7 @@ function interactive() {
 
 parse_args
 
-if [ -z $TASK ] || [ -z $TARGET ]; then
+if [ -z $TASK ]; then
 	interactive
 fi
 
