@@ -27,10 +27,10 @@ unset DIRNAME
 
 readonly BASEDIR=$(pwd)
 
-readonly TASK_DIR=$BASEDIR/tasks
-readonly ASSET_DIR=$BASEDIR/assets
-readonly TARGET_DIR=$BASEDIR/targets
-readonly TOOL_DIR=$BASEDIR/tools
+export readonly TASK_DIR=$BASEDIR/tasks
+export readonly ASSET_DIR=$BASEDIR/assets
+export readonly TARGET_DIR=$BASEDIR/targets
+export readonly TOOL_DIR=$BASEDIR/tools
 
 TASK=
 TARGET=
@@ -38,7 +38,7 @@ TARGET=
 HOSTS=()
 
 #block run when sourcing task
-HOSTMODE="yes"
+export readonly HOSTMODE="yes"
 
 function parse_args() {
 	for (( i=0; i < $ARGC;i++ )); do
