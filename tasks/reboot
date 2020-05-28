@@ -1,0 +1,23 @@
+#!/bin/bash
+
+function task_exec() {
+	wall "Going down for reboot now."
+	sudo reboot
+}
+
+function task_setup() {
+	# Available environment variables
+	# $ASSET_DIR
+	# $TOOL_DIR
+	
+	SSH_USER=server
+	SSH_IDENTITY_FILE=$ASSET_DIR/id_rsa
+	
+	TASK_ISSET="yes"
+}
+
+if [ -z $HOSTMODE ]; then
+	task_exec
+else
+	task_setup
+fi

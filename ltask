@@ -36,6 +36,7 @@ TASK=
 TARGET=
 
 HOSTS=()
+FILES=()
 
 #block run when sourcing task
 export readonly HOSTMODE="yes"
@@ -110,6 +111,9 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	[ ! -z $port ] && rexecargs+="-p $port "
 	[ ! -z $SSH_IDENTITY_FILE ] && rexecargs+="-i $SSH_IDENTITY_FILE "
 	[ ! -z $SSH_USER ] && rexecargs="$SSH_USER@"
+
+	[ ${#FILES[@]} -gt 0 ] && scp -P ${port:=22} ${FILES[@]} ${SSH_USER:=$USER}@$hostname:
+
 	rexecargs+="$hostname "
 	rexecargs+="$TASK_DIR/$TASK"
 
