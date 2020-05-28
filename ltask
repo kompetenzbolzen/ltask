@@ -109,10 +109,8 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	IFS=$':' read hostname port <<< "$hoststring"
 
 	[ ! -z $port ] && rexecargs+="-p $port "
-	[ ! -z $SSH_IDENTITY_FILE ] && rexecargs+="-i $SSH_IDENTITY_FILE "
-	[ ! -z $SSH_USER ] && rexecargs="$SSH_USER@"
-
-	[ ${#FILES[@]} -gt 0 ] && scp -P ${port:=22} ${FILES[@]} ${SSH_USER:=$USER}@$hostname:
+	rexecargs+="-i ${SSH_IDENTITY_FILE:=~/.ssh/id_rsa} "
+	[ ! -z $SSH_USER ] && rexecargs+="$SSH_USER@"
 
 	rexecargs+="$hostname "
 	rexecargs+="$TASK_DIR/$TASK"
@@ -120,5 +118,7 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	echo
 	echo "<=== $hostname ===>"
 	echo
+
+	[ ${#FILES[@]} -gt 0 ] && scp -i ${SSH_IDENTITY_FILE:=~/.ssh/id_rsa} -P ${port:=22} ${FILES[@]} ${SSH_USER:=$USER}@$hostname:
 	$TOOL_DIR/rexec.sh $rexecargs
 done
