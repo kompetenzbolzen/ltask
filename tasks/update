@@ -1,21 +1,15 @@
 #!/bin/bash
 
 function task_exec() {
-	whoami
-	hostname
-	uptime
+	pkg_update
+	pkg_upgrade
 }
 
 function task_setup() {
-	# Available environment variables
-	# $ASSET_DIR
-	# $TOOL_DIR
-	# $INCLUDE_DIR
-
-	INCLUDES+=()
+	INCLUDES+=("$INCLUDE_DIR/pkgmanager")
 
 	SSH_USER=server
-	SSH_IDENTITY_FILE=$ASSET_DIR/id_rsa
+	#SSH_IDENTITY_FILE=$ASSET_DIR/id_rsa
 	
 	FILES+=()
 

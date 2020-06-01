@@ -31,12 +31,14 @@ export readonly TASK_DIR=$BASEDIR/tasks
 export readonly ASSET_DIR=$BASEDIR/assets
 export readonly TARGET_DIR=$BASEDIR/targets
 export readonly TOOL_DIR=$BASEDIR/tools
+export readonly INCLUDE_DIR=$BASEDIR/libs
 
 TASK=
 TARGET=
 
 HOSTS=()
 FILES=()
+INCLUDES=()
 
 #block run when sourcing task
 export readonly HOSTMODE="yes"
@@ -62,10 +64,7 @@ function parse_args() {
 				echo $0 -h for help
 				exit 1;;
 		esac
-
 	done
-	#[ -z $TASK ] && echo No task specified && exit 1
-	#[ -z $TARGET ] && echo No target specified && exit 1
 }
 
 function print_help() {
@@ -110,15 +109,14 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 
 	[ ! -z $port ] && rexecargs+="-p $port "
 	rexecargs+="-i ${SSH_IDENTITY_FILE:=~/.ssh/id_rsa} "
+	[ ${#FILES[@]} -gt 0 ] && rexecargs+="-f \"${FIELS[@]}\" "
 	[ ! -z $SSH_USER ] && rexecargs+="$SSH_USER@"
 
-	rexecargs+="$hostname "
-	rexecargs+="$TASK_DIR/$TASK"
+	rexecargs+="$hostname ${INCLUDES[@]} $TASK_DIR/$TASK"
 
 	echo
 	echo "<=== $hostname ===>"
 	echo
-
-	[ ${#FILES[@]} -gt 0 ] && scp -o NumberOfPasswordPrompts=0 -o StrictHostKeyChecking=no -S "$SSH" -i ${SSH_IDENTITY_FILE:=~/.ssh/id_rsa} -P ${port:=22} ${FILES[@]} ${SSH_USER:=$USER}@$hostname:
+	echo $rexecargs
 	$TOOL_DIR/rexec.sh $rexecargs
 done

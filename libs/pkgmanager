@@ -1,0 +1,29 @@
+# vi: ft=sh
+
+PKGMAN="/bin/false"
+
+[ -f "/etc/os-release" ] && source /etc/os-release
+case $ID in
+	arch)
+		PKGMAN="pacman"
+		INSTALL_CMD="--noconfirm -S"
+		REMOVE_CMD="--noconfirm -Rs"
+		UPDATE_CMD="--noconfirm -Sy"
+		UPGRADE_CMD="--noconfirm -Syu"
+		FULLUPGRADE_CMD="--noconfirm -Syu"
+		;;
+	debian)
+		PKGMAN="apt-get"
+		INSTALL_CMD="install -y"
+		REMOVE_CMD="purge -y"
+		UPDATE_CMD="update"
+		UPGRADE_CMD="upgrade -y"
+		FULLUPGRADE_CMD="dist-upgrade"
+		;;
+esac
+
+alias pkg_install="sudo $PKGMAN $INSTALL_CMD"
+alias pkg_remove="sudo $PKGMAN $REMOVE_CMD"
+alias pkg_update="sudo $PKGMAN $UPDATE_CMD"
+alias pkg_upgrade="sudo $PKGMAN $UPGRADE_CMD"
+alias pkg_fullupgrade="sudo $PKGMAN $FULLUPGRADE_CMD"

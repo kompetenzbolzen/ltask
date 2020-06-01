@@ -27,17 +27,18 @@ SSH_HOST=
 SSH_OPTIONS="-o NumberOfPasswordPrompts=0 -o StrictHostKeyChecking=no"
 SSH="ssh $SSH_OPTIONS"
 
-SCRIPT_FILE=
+SCRIPT_FILES=()
 SCRIPT_INTERPRETER=/bin/sh
+
+FILES=""
 
 function parse_args() {
 	for (( i=0; i < $ARGC;i++ )); do
 		local ARGREGEX="^-.*"
 		if [[ ! ${ARGV[$i]} =~ $ARGREGEX ]]; then
 			[ -z $SSH_HOST ] && SSH_HOST=${ARGV[$i]} && continue
-			[ -z $SCRIPT_FILE ] && SCRIPT_FILE=${ARGV[$i]} && continue
-			
-			print_help 1
+			SCRIPT_FILES+=(${ARGV[$i]})
+			continue
 		fi
 
 		case ${ARGV[$i]} in
@@ -50,6 +51,9 @@ function parse_args() {
 			-i)
 				i=$((i+1))
 				SSH_IDENTITY=${ARGV[$i]};;
+			-f)
+				i=$((i+1))
+				FILES="${ARGV[$i]}";;
 			-h)
 				print_help 0;;
 			*)
@@ -61,7 +65,7 @@ function parse_args() {
 	done
 	
 	[ -z $SSH_HOST ] && echo No host specified && exit 1
-	[ -z $SCRIPT_FILE ] && echo No script specified && exit 1
+	[ ${#SCRIPT_FILES[@]} -eq 0 ] && echo No script specified && exit 1
 }
 
 function print_help() {
@@ -73,6 +77,7 @@ $0 [OPTIONS] [USER@]HOST SCRIPT
 	-p <PORT>	SSH port (default: 22)
 	-s <SSH>	Custom SSH program
 	-i <IDENTITY>	SSH Identity file (default: ~/.ssh/id_rsa.pub)
+	-f FILE		Copy FILE to target before execution
 	-h		Print this help text
 EOF
 	exit $1
@@ -80,10 +85,11 @@ EOF
 
 parse_args
 
-[ ! -f $SCRIPT_FILE ] && echo \"$SCRIPT_FILE\" not found && exit 1
+#[ ! -f $SCRIPT_FILE ] && echo \"$SCRIPT_FILE\" not found && exit 1
 
-INTERPRETER_STRING=$(head -n 1 $SCRIPT_FILE)
-INTERPRETER_REGEX="^#!.*"
-[[ $INTERPRETER_STRING =~ $INTERPRETER_REGEX ]] && SCRIPT_INTERPRETER=$(tail -c +3 <<< $INTERPRETER_STRING)
+#INTERPRETER_STRING=$(head -n 1 $SCRIPT_FILE)
+#INTERPRETER_REGEX="^#!.*"
+#[[ $INTERPRETER_STRING =~ $INTERPRETER_REGEX ]] && SCRIPT_INTERPRETER=$(tail -c +3 <<< $INTERPRETER_STRING)
 
-cat $SCRIPT_FILE | $SSH -p $SSH_PORT -i $SSH_IDENTITY $SSH_HOST $SCRIPT_INTERPRETER
+[ ! -z "$FILES" ] && scp -S "$SSH" -i $SSH_IDENTITY -P $SSH_PORT $FILES $SSH_HOST:
+cat ${SCRIPT_FILES[@]} | $SSH -p $SSH_PORT -i $SSH_IDENTITY $SSH_HOST "/bin/bash"

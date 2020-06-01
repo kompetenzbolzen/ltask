@@ -32,6 +32,8 @@ Reference for environment variables
     # To be set by task
     SSH_USER		username to connect as
     SSH_IDENTITY	path to ssh-key used for authentification of specified user
+    FILES		Array of Files to copy over before script invocation
+    INCLUDES		Array of libraries to include
     
     # Available in setup
     ASSET_DIR		paht to folder where eg keys are stored

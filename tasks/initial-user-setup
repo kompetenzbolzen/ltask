@@ -1,18 +1,18 @@
 #!/bin/bash
 
-function task_exec() {
-	source /etc/os-release
-	case $ID in
-		arch)
-			pacman -Sy
-			INSTALL_CMD="pacman --noconfirm -S";;
-		debian)
-			apt update
-			INSTALL_CMD="apt-get install -y"
-	esac
+function task_setup() {
+	SSH_USER=root
+	SSH_IDENTITY_FILE=$ASSET_DIR/id_jenkins
 
-	PACKAGES="sudo vim git"
-	[ ! -z "$INSTALL_CMD" ] && $INSTALL_CMD $PACKAGES
+	FILES+=("$ASSET_DIR/id_user.pub" "$ASSET_DIR/id_jenkins.pub")
+	INCLUDES+=("pkgmanager")
+
+	TASK_ISSET="yes"
+}
+
+function task_exec() {
+	pkg_update
+	pkg_install sudo
 
 	groupadd sudo
 	useradd -s /bin/bash -d /home/server -m -U -G sudo server
@@ -31,19 +31,6 @@ EOF
 	cat id_jenkins.pub >> /home/server/.ssh/authorized_keys
 
 	echo > /etc/motd
-}
-
-function task_setup() {
-	# Available environment variables
-	# $ASSET_DIR
-	# $TOOL_DIR
-	
-	SSH_USER=root
-	#SSH_IDENTITY_FILE=$ASSET_DIR/id_jenkins
-
-	FILES+=("$ASSET_DIR/id_user.pub" "$ASSET_DIR/id_jenkins.pub")
-
-	TASK_ISSET="yes"
 }
 
 if [ -z $HOSTMODE ]; then
