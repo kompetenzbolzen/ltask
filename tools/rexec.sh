@@ -30,7 +30,7 @@ SSH="ssh $SSH_OPTIONS"
 SCRIPT_FILES=()
 SCRIPT_INTERPRETER=/bin/sh
 
-FILES=""
+FILES=()
 
 function parse_args() {
 	for (( i=0; i < $ARGC;i++ )); do
@@ -53,7 +53,7 @@ function parse_args() {
 				SSH_IDENTITY=${ARGV[$i]};;
 			-f)
 				i=$((i+1))
-				FILES="${ARGV[$i]}";;
+				FILES+=(${ARGV[$i]});;
 			-h)
 				print_help 0;;
 			*)
@@ -85,11 +85,7 @@ EOF
 
 parse_args
 
-#[ ! -f $SCRIPT_FILE ] && echo \"$SCRIPT_FILE\" not found && exit 1
+[ ${#FILES[@]} -gt 0 ] && scp $SSH_OPTIONS -i $SSH_IDENTITY -P $SSH_PORT ${FILES[@]} $SSH_HOST:
 
-#INTERPRETER_STRING=$(head -n 1 $SCRIPT_FILE)
-#INTERPRETER_REGEX="^#!.*"
-#[[ $INTERPRETER_STRING =~ $INTERPRETER_REGEX ]] && SCRIPT_INTERPRETER=$(tail -c +3 <<< $INTERPRETER_STRING)
-
-[ ! -z "$FILES" ] && scp -S "$SSH" -i $SSH_IDENTITY -P $SSH_PORT $FILES $SSH_HOST:
 cat ${SCRIPT_FILES[@]} | $SSH -p $SSH_PORT -i $SSH_IDENTITY $SSH_HOST "/bin/bash"
+exit $?

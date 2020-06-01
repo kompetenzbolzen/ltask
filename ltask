@@ -109,7 +109,7 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 
 	[ ! -z $port ] && rexecargs+="-p $port "
 	rexecargs+="-i ${SSH_IDENTITY_FILE:=~/.ssh/id_rsa} "
-	[ ${#FILES[@]} -gt 0 ] && rexecargs+="-f \"${FIELS[@]}\" "
+	[ ${#FILES[@]} -gt 0 ] && for f in ${FILES[@]}; do rexecargs+="-f $f "; done
 	[ ! -z $SSH_USER ] && rexecargs+="$SSH_USER@"
 
 	rexecargs+="$hostname ${INCLUDES[@]} $TASK_DIR/$TASK"
@@ -119,4 +119,12 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	echo
 	echo $rexecargs
 	$TOOL_DIR/rexec.sh $rexecargs
+	[ $? -ne 0 ] && FAILED_HOSTS+=($hostname)
 done
+
+if [ ${#FAILED_HOSTS[@]} -gt 0 ]; then
+	echo
+	echo Some hosts failed the task:
+	echo ${FAILED_HOSTS[@]}
+	exit 1
+fi

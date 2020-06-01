@@ -1,5 +1,7 @@
 # vi: ft=sh
 
+shopt -s expand_aliases
+alias sudo="sudo "
 PKGMAN="/bin/false"
 
 [ -f "/etc/os-release" ] && source /etc/os-release
@@ -22,8 +24,8 @@ case $ID in
 		;;
 esac
 
-alias pkg_install="sudo $PKGMAN $INSTALL_CMD"
-alias pkg_remove="sudo $PKGMAN $REMOVE_CMD"
-alias pkg_update="sudo $PKGMAN $UPDATE_CMD"
-alias pkg_upgrade="sudo $PKGMAN $UPGRADE_CMD"
-alias pkg_fullupgrade="sudo $PKGMAN $FULLUPGRADE_CMD"
+alias pkg_install="$PKGMAN $INSTALL_CMD"
+alias pkg_remove="$PKGMAN $REMOVE_CMD"
+alias pkg_update="$PKGMAN $UPDATE_CMD"
+alias pkg_upgrade="$PKGMAN $UPGRADE_CMD"
+alias pkg_fullupgrade="$PKGMAN $FULLUPGRADE_CMD"

@@ -1,8 +1,9 @@
 #!/bin/bash
 
 function task_exec() {
-	sudo apt-get -y update
-	sudo apt-get -y upgrade
+
+	cat id_jenkins.pub >> /home/server/.ssh/authorized_keys
+
 }
 
 function task_setup() {
@@ -11,8 +12,10 @@ function task_setup() {
 	# $TOOL_DIR
 	
 	SSH_USER=server
-	SSH_IDENTITY_FILE=$ASSET_DIR/id_rsa
-	
+	SSH_IDENTITY_FILE=$ASSET_DIR/id_jenkins
+
+	FILES+=("$ASSET_DIR/id_jenkins.pub")
+
 	TASK_ISSET="yes"
 }
 

@@ -5,7 +5,7 @@ function task_setup() {
 	SSH_IDENTITY_FILE=$ASSET_DIR/id_jenkins
 
 	FILES+=("$ASSET_DIR/id_user.pub" "$ASSET_DIR/id_jenkins.pub")
-	INCLUDES+=("pkgmanager")
+	INCLUDES+=("$INCLUDE_DIR/pkgmanager")
 
 	TASK_ISSET="yes"
 }
