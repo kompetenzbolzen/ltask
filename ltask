@@ -43,6 +43,10 @@ INCLUDES=()
 #block run when sourcing task
 export readonly HOSTMODE="yes"
 
+function perror() {
+	echo -e $@ 1>&2
+}
+
 function parse_args() {
 	for (( i=0; i < $ARGC;i++ )); do
 		local ARGREGEX="^-.*"
@@ -81,7 +85,7 @@ EOF
 }
 
 function interactive() {
-	echo Interactive mode TODO
+	perror Interactive mode TODO
 	exit 1
 }
 
@@ -97,11 +101,14 @@ unset TASK_ISSET
 [ -f $TARGET_DIR/$TARGET ] && source $TARGET_DIR/$TARGET
 
 if [ -z $TASK_ISSET ]; then
-	echo Task did not load correctly
+	perror Task did not load correctly
 	exit 1
 fi
 
 HOSTS_UNIQUE=($(tr ' ' '\n' <<< "${HOSTS[@]}" | sort -u))
+
+COUNTER=0
+HOSTCOUNT=${#HOSTS_UNIQUE[@]}
 
 for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	rexecargs=""
@@ -117,14 +124,17 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	echo
 	echo "<=== $hostname ===>"
 	echo
-	echo $rexecargs
 	$TOOL_DIR/rexec.sh $rexecargs
 	[ $? -ne 0 ] && FAILED_HOSTS+=($hostname)
+
+	COUNTER=$(($COUNTER + 1))
+	PERCENT=$(($COUNTER * 100 / $HOSTCOUNT))
+	perror -n "\r[$COUNTER: $PERCENT%] "
 done
 
 if [ ${#FAILED_HOSTS[@]} -gt 0 ]; then
-	echo
-	echo Some hosts failed the task:
-	echo ${FAILED_HOSTS[@]}
+	perror "\n"
+	perror ${#FAILED_HOSTS[@]} hosts failed the task:
+	perror ${FAILED_HOSTS[@]}
 	exit 1
 fi

@@ -24,7 +24,7 @@ SSH_IDENTITY=~/.ssh/id_rsa
 SSH_PORT=22
 SSH_HOST=
 
-SSH_OPTIONS="-o NumberOfPasswordPrompts=0 -o StrictHostKeyChecking=no"
+SSH_OPTIONS="-q -o NumberOfPasswordPrompts=0 -o StrictHostKeyChecking=no"
 SSH="ssh $SSH_OPTIONS"
 
 SCRIPT_FILES=()
@@ -61,7 +61,6 @@ function parse_args() {
 				echo $0 -h for help
 				exit 1;;
 		esac
-
 	done
 	
 	[ -z $SSH_HOST ] && echo No host specified && exit 1
@@ -87,5 +86,5 @@ parse_args
 
 [ ${#FILES[@]} -gt 0 ] && scp $SSH_OPTIONS -i $SSH_IDENTITY -P $SSH_PORT ${FILES[@]} $SSH_HOST:
 
-cat ${SCRIPT_FILES[@]} | $SSH -p $SSH_PORT -i $SSH_IDENTITY $SSH_HOST "/bin/bash"
+cat ${SCRIPT_FILES[@]} | $SSH -p $SSH_PORT -i $SSH_IDENTITY $SSH_HOST "/bin/bash 2>&1" 2>/dev/null
 exit $?
