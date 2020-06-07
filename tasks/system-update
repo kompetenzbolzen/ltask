@@ -20,7 +20,9 @@ function task_setup() {
 
 	SSH_USER=server
 	SSH_IDENTITY_FILE=$ASSET_DIR/id_jenkins
-	
+
+	PARALLEL="yes"
+
 	TASK_ISSET="yes"
 }
 
