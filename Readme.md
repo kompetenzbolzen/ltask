@@ -15,8 +15,7 @@ lightweight remote task management
 
 All output from targets is printed to `STDOUT`, prefixed by the hostname.
 This also includes text sent to `STDERR`, which is prefixed by `[ERR]`.
-Text is displayed "as it comes", not sorted by host.
-If required, this can be done afterwards with tools such as `grep`
+Text is displayed "as it comes", not grouped by host.
 Status and error messages are printed to `STDERR`.
 In Linear execution mode, ltask displays a progress meter.
 
@@ -47,7 +46,7 @@ Reference for environment variables
     PARALLEL		Enable parallel execution (true/[false])
     
     # Available in setup
-    ASSET_DIR		paht to folder where eg keys are stored
+    ASSET_DIR		path to folder where eg keys are stored
     TOOL_DIR		path to helper script folder
 
 Tasks are stored in `tasks/`
