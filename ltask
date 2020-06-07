@@ -36,6 +36,8 @@ export readonly INCLUDE_DIR=$BASEDIR/libs
 TASK=
 TARGET=
 
+PARALLEL="false"
+
 HOSTS=()
 FILES=()
 INCLUDES=()
@@ -61,6 +63,8 @@ function parse_args() {
 			-H)
 				i=$((i+1))
 				HOSTS+=(${ARGV[$i]});;
+			-p)
+				PARALLEL="true";;
 			-h)
 				print_help 0;;
 			*)
@@ -79,6 +83,7 @@ Options:
 	-H HOST		Add HOST to target hosts. can be used
 			to target single hosts without defining
 			a custom target
+	-p		Force parallel execution
 	-h		print this help text
 EOF
 	exit $1
@@ -97,8 +102,8 @@ fi
 
 unset TASK_ISSET
 
-[ -f $TASK_DIR/$TASK ] && source $TASK_DIR/$TASK
 [ -f $TARGET_DIR/$TARGET ] && source $TARGET_DIR/$TARGET
+[ -f $TASK_DIR/$TASK ] && source $TASK_DIR/$TASK
 
 if [ -z $TASK_ISSET ]; then
 	perror Task did not load correctly
@@ -109,6 +114,9 @@ HOSTS_UNIQUE=($(tr ' ' '\n' <<< "${HOSTS[@]}" | sort -u))
 
 COUNTER=0
 HOSTCOUNT=${#HOSTS_UNIQUE[@]}
+
+[ $PARALLEL = "true" ] && AND="&"
+declare -A HOST_PID
 
 for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	rexecargs=""
@@ -121,20 +129,32 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 
 	rexecargs+="$hostname ${INCLUDES[@]} $TASK_DIR/$TASK"
 
-	echo
-	echo "<=== $hostname ===>"
-	echo
-	$TOOL_DIR/rexec.sh $rexecargs
-	[ $? -ne 0 ] && FAILED_HOSTS+=($hostname)
+	set -o pipefail
+	eval "$TOOL_DIR/rexec.sh $rexecargs | (while read l; do echo [$hostname] \$l; done) $AND"
+	RET=$?
 
-	COUNTER=$(($COUNTER + 1))
-	PERCENT=$(($COUNTER * 100 / $HOSTCOUNT))
-	perror -n "\r[$COUNTER: $PERCENT%] "
+	if [ $PARALLEL = "true" ]; then
+		HOST_PID[$hostname]=$!
+	else
+		[ $RET -ne 0 ] && FAILED_HOSTS+=($hostname)
+		COUNTER=$(($COUNTER + 1))
+		PERCENT=$(($COUNTER * 100 / $HOSTCOUNT))
+		perror -n "\r[$COUNTER: $PERCENT%] "
+	fi
 done
+
+if [ $PARALLEL = "true" ]; then
+	perror Waiting for remote tasks to finish...
+	for hostname in ${!HOST_PID[@]}; do
+		wait ${HOST_PID[$hostname]}
+		[ $? -ne 0 ] && FAILED_HOSTS+=($hostname)
+	done
+	perror Done!
+fi
 
 if [ ${#FAILED_HOSTS[@]} -gt 0 ]; then
 	perror "\n"
-	perror ${#FAILED_HOSTS[@]} hosts failed the task:
+	perror ${#FAILED_HOSTS[@]} targets failed:
 	perror ${FAILED_HOSTS[@]}
 	exit 1
 fi

@@ -3,7 +3,7 @@
 function task_exec() {
 	whoami
 	hostname
-	uptime
+	uptime 1>&2
 }
 
 function task_setup() {
@@ -11,6 +11,9 @@ function task_setup() {
 	# $ASSET_DIR
 	# $TOOL_DIR
 	# $INCLUDE_DIR
+
+	# Available Configuration
+	# $PARALLEL "true"/"false"
 
 	INCLUDES+=()
 

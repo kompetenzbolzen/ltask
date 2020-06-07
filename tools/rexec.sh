@@ -86,5 +86,5 @@ parse_args
 
 [ ${#FILES[@]} -gt 0 ] && scp $SSH_OPTIONS -i $SSH_IDENTITY -P $SSH_PORT ${FILES[@]} $SSH_HOST:
 
-cat ${SCRIPT_FILES[@]} | $SSH -p $SSH_PORT -i $SSH_IDENTITY $SSH_HOST "/bin/bash 2>&1" 2>/dev/null
+cat ${SCRIPT_FILES[@]} | $SSH -p $SSH_PORT -i $SSH_IDENTITY $SSH_HOST '/bin/bash 2> >(while read line; do echo [ERR] $line; done)' 2>/dev/null
 exit $?
