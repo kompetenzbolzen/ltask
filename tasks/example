@@ -13,7 +13,7 @@ function task_setup() {
 	# $INCLUDE_DIR
 
 	# Available Configuration
-	# $PARALLEL "true"/"false"
+	# $PARALLEL "yes"/"no"
 
 	INCLUDES+=()
 

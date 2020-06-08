@@ -43,7 +43,7 @@ Reference for environment variables
     SSH_IDENTITY	path to ssh-key used for authentification of specified user
     FILES		Array of Files to copy over before script invocation
     INCLUDES		Array of libraries to include
-    PARALLEL		Enable parallel execution (true/[false])
+    PARALLEL		Enable parallel execution (yes/[no])
     
     # Available in setup
     ASSET_DIR		path to folder where eg keys are stored

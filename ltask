@@ -36,7 +36,7 @@ export readonly INCLUDE_DIR=$BASEDIR/libs
 TASK=
 TARGET=
 
-PARALLEL="false"
+PARALLEL="no"
 
 HOSTS=()
 FILES=()
@@ -64,7 +64,7 @@ function parse_args() {
 				i=$((i+1))
 				HOSTS+=(${ARGV[$i]});;
 			-p)
-				PARALLEL="true";;
+				PARALLEL="yes";;
 			-h)
 				print_help 0;;
 			*)
@@ -115,7 +115,7 @@ HOSTS_UNIQUE=($(tr ' ' '\n' <<< "${HOSTS[@]}" | sort -u))
 COUNTER=0
 HOSTCOUNT=${#HOSTS_UNIQUE[@]}
 
-[ $PARALLEL = "true" ] && AND="&"
+[ $PARALLEL = "yes" ] && AND="&"
 declare -A HOST_PID
 
 for hoststring in "${HOSTS_UNIQUE[@]}"; do
@@ -133,7 +133,7 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	eval "$TOOL_DIR/rexec.sh $rexecargs | (while read l; do echo [$hostname] \$l; done) $AND"
 	RET=$?
 
-	if [ $PARALLEL = "true" ]; then
+	if [ $PARALLEL = "yes" ]; then
 		HOST_PID[$hostname]=$!
 	else
 		[ $RET -ne 0 ] && FAILED_HOSTS+=($hostname)
@@ -143,7 +143,7 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	fi
 done
 
-if [ $PARALLEL = "true" ]; then
+if [ $PARALLEL = "yes" ]; then
 	perror Waiting for remote tasks to finish...
 	for hostname in ${!HOST_PID[@]}; do
 		wait ${HOST_PID[$hostname]}

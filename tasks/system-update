@@ -23,7 +23,7 @@ function task_setup() {
 
 	PARALLEL="yes"
 
-	TASK_ISSET="true"
+	TASK_ISSET="yes"
 }
 
 if [ -z $HOSTMODE ]; then
