@@ -75,6 +75,24 @@ function parse_args() {
 	done
 }
 
+selector()
+{
+	local regex="^-?[0-9]+\$"
+	local cnt=0
+	for selection in "$@"
+	do
+		echo "$cnt) $selection"
+		((cnt=$cnt + 1))
+	done
+
+	read -p "(default=0) >" inp
+	if [[ "$inp" =~ $regex ]] && [ $inp -ge 0 -a $inp -le $# ]
+	then
+		return $inp
+	fi
+	return 0
+}
+
 function print_help() {
 	cat << EOF
 Usage:
@@ -90,8 +108,16 @@ EOF
 }
 
 function interactive() {
-	perror Interactive mode TODO
-	exit 1
+	TASK_LIST=( $(ls $TASK_DIR) )
+	TARGET_LIST=( $(ls $TARGET_DIR) )
+
+	perror "\nSelect a Task"
+	>&2 selector ${TASK_LIST[@]}
+	TASK=${TASK_LIST[$?]}
+
+	perror "\nSelect a Target"
+	>&2 selector ${TARGET_LIST[@]}
+	TARGET=${TARGET_LIST[$?]}
 }
 
 parse_args
@@ -123,7 +149,7 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 	IFS=$':' read hostname port <<< "$hoststring"
 
 	[ ! -z $port ] && rexecargs+="-p $port "
-	rexecargs+="-i ${SSH_IDENTITY_FILE:=~/.ssh/id_rsa} "
+	[ ! -z $SSH_IDENTITY_FILE ] && rexecargs+="-i $SSH_IDENTITY_FILE "
 	[ ${#FILES[@]} -gt 0 ] && for f in ${FILES[@]}; do rexecargs+="-f $f "; done
 	[ ! -z $SSH_USER ] && rexecargs+="$SSH_USER@"
 
@@ -144,16 +170,18 @@ for hoststring in "${HOSTS_UNIQUE[@]}"; do
 done
 
 if [ $PARALLEL = "yes" ]; then
-	perror Waiting for remote tasks to finish...
+	perror Waiting for asynchronous tasks to finisch...
+
 	for hostname in ${!HOST_PID[@]}; do
 		wait ${HOST_PID[$hostname]}
 		[ $? -ne 0 ] && FAILED_HOSTS+=($hostname)
 	done
+
 	perror Done!
 fi
 
 if [ ${#FAILED_HOSTS[@]} -gt 0 ]; then
-	perror "\n"
+	perror
 	perror ${#FAILED_HOSTS[@]} targets failed:
 	perror ${FAILED_HOSTS[@]}
 	exit 1
