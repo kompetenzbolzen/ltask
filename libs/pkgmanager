@@ -5,7 +5,7 @@ alias sudo="sudo "
 PKGMAN="/bin/false"
 
 [ -f "/etc/os-release" ] && source /etc/os-release
-[ -z $ID ] && ID=$ID_LIKE
+[ ! -z $ID_LIKE ] && ID=$ID_LIKE
 
 case $ID in
 	arch)
