@@ -5,6 +5,8 @@ alias sudo="sudo "
 PKGMAN="/bin/false"
 
 [ -f "/etc/os-release" ] && source /etc/os-release
+[ -z $ID ] && ID=$ID_LIKE
+
 case $ID in
 	arch)
 		PKGMAN="pacman"
@@ -22,6 +24,9 @@ case $ID in
 		UPGRADE_CMD="upgrade -y"
 		FULLUPGRADE_CMD="dist-upgrade"
 		;;
+	*)
+		1>&2 echo Distribution could not be determined 
+		exit 1
 esac
 
 alias pkg_install="$PKGMAN $INSTALL_CMD"
