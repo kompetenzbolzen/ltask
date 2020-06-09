@@ -25,7 +25,7 @@ case $ID in
 		FULLUPGRADE_CMD="dist-upgrade"
 		;;
 	*)
-		1>&2 echo Distribution could not be determined 
+		1>&2 echo Distribution could not be determined
 		exit 1
 esac
 

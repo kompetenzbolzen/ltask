@@ -87,7 +87,7 @@ for (( i=0; i < $ARGC;i++ )); do
 	if [[ ! ${ARGV[$i]} =~ $ARGREGEX ]]; then
 		[ -z $TASK ] && TASK=${ARGV[$i]} && continue
 		[ -z $TARGET ] && TARGET=${ARGV[$i]} && continue
-		
+
 		print_help 1
 	fi
 

@@ -19,7 +19,7 @@ function task_setup() {
 
 	SSH_USER=server
 	SSH_IDENTITY_FILE=$ASSET_DIR/id_rsa
-	
+
 	FILES+=()
 
 	TASK_ISSET="yes"

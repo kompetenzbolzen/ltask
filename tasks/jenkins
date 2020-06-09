@@ -10,7 +10,7 @@ function task_setup() {
 	# Available environment variables
 	# $ASSET_DIR
 	# $TOOL_DIR
-	
+
 	SSH_USER=server
 	SSH_IDENTITY_FILE=$ASSET_DIR/id_jenkins
 

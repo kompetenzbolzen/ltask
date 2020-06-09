@@ -62,7 +62,7 @@ function parse_args() {
 				exit 1;;
 		esac
 	done
-	
+
 	[ -z $SSH_HOST ] && echo No host specified && exit 1
 	[ ${#SCRIPT_FILES[@]} -eq 0 ] && echo No script specified && exit 1
 }

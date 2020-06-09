@@ -7,7 +7,7 @@ function task_exec() {
 
 	sudo pkg_upgrade
 	ret=$(($ret + $?))
-	
+
 	exit $ret
 }
 
@@ -15,7 +15,7 @@ function task_setup() {
 	# Available environment variables
 	# $ASSET_DIR
 	# $TOOL_DIR
-	
+
 	INCLUDES+=("$INCLUDE_DIR/pkgmanager")
 
 	SSH_USER=server
