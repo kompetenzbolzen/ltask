@@ -1,0 +1,47 @@
+# vi: ft=sh
+
+CONF_DELIMITER="="
+CONF_SETTING=()
+CONF_VALUES=()
+
+# 1: Setting 2: Value
+function conf_set() {
+	CONF_SETTING+=("$1")
+	CONF_VALUES+=("$2")
+}
+
+# 1: File
+# Modify Configuration file
+function conf_apply() {
+	[ -z "$1" ] && return
+
+	if [ ! -f "$1" ]; then
+		>&2 echo $1 not found. Creating it
+		conf_create $@
+		return $?
+	fi
+
+	for (( i=0; i < ${#CONF_SETTING[@]}; i++ )); do
+		if grep -q "^\s*${CONF_SETTING[$i]}\s*$CONF_DELIMITER\s*.*\$" "$1"; then
+			sed -i "s/^\(\s*${CONF_SETTING[$i]}\s*$CONF_DELIMITER\s*\).*\$/\1${CONF_VALUES[$i]}/" "$1"
+		else
+			echo "${CONF_SETTING[$i]}$CONF_DELIMITER${CONF_VALUES[$i]}" >> "$1"
+		fi
+	done
+
+	CONF_SETTING=()
+	CONF_VALUES=()
+}
+
+# 1: File
+# Create configuration file, replace if existing
+function conf_create() {
+	[ -f "$1" ] && mv "$1" "$1.bak"
+
+	for (( i=0; i < ${#CONF_SETTING[@]}; i++ )); do
+		echo "${CONF_SETTING[$i]}${CONF_DELIMITER}${CONF_VALUES[$i]}" >> "$1"
+	done
+
+	CONF_SETTING=()
+	CONF_VALUES=()
+}
