@@ -25,11 +25,8 @@ unset DIRNAME
 
 [ ! -f ./$(basename $0) ] && echo "Could not find working directory" && exit 1
 
-readonly BASEDIR=$(pwd)
+BASEDIR=$(pwd)
 
-export readonly TASK_DIR=$BASEDIR/tasks
-export readonly ASSET_DIR=$BASEDIR/assets
-export readonly TARGET_DIR=$BASEDIR/targets
 export readonly TOOL_DIR=$BASEDIR/tools
 export readonly INCLUDE_DIR=$BASEDIR/libs
 
@@ -77,6 +74,7 @@ Options:
 			a custom target
 	-p		Force parallel execution
 	-h		print this help text
+	-d DIR		specify a different folder containing "tasks", "targets", and "assets"
 EOF
 	exit $1
 }
@@ -99,12 +97,20 @@ for (( i=0; i < $ARGC;i++ )); do
 			PARALLEL="yes";;
 		-h)
 			print_help 0;;
+		-d)
+			i=$((i+1))
+			BASEDIR="${ARGV[$i]}";;
 		*)
 			echo Invalid Argument ${ARGV[$i]}
 			echo $0 -h for help
 			exit 1;;
 	esac
 done
+
+# Set after BASEDIR might have been changed
+export readonly TASK_DIR=$BASEDIR/tasks
+export readonly ASSET_DIR=$BASEDIR/assets
+export readonly TARGET_DIR=$BASEDIR/targets
 
 if [ -z $TASK ]; then
 	TASK_LIST=( $(ls $TASK_DIR) )
