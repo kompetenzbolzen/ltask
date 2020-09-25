@@ -17,7 +17,7 @@ case $ID in
 		FULLUPGRADE_CMD="--noconfirm -Syu"
 		;;
 	debian)
-		PKGMAN="apt-get"
+		PKGMAN="DEBIAN_FRONTEND=noninteractive apt-get"
 		INSTALL_CMD="install -y"
 		REMOVE_CMD="purge -y"
 		UPDATE_CMD="update"
