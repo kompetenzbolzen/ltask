@@ -73,6 +73,7 @@ Options:
 			to target single hosts without defining
 			a custom target
 	-p		Force parallel execution
+	-i		specify a SSH identity file. This is overridden by tasks!
 	-h		print this help text
 	-d DIR		specify a different folder containing "tasks", "targets", and "assets"
 EOF
@@ -100,6 +101,10 @@ for (( i=0; i < $ARGC;i++ )); do
 		-d)
 			i=$((i+1))
 			BASEDIR="${ARGV[$i]}";;
+		-i)
+			i=$((i+1))
+			SSH_IDENTITY_FILE="${ARGV[$i]}";;
+
 		*)
 			echo Invalid Argument ${ARGV[$i]}
 			echo $0 -h for help
